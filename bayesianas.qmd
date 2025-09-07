@@ -1,6 +1,6 @@
 ---
 title: "Situación Problema: Contaminación ambiental y salud en México"
-author: "Marissa Luna, Mariana León, Nube Garcidueñas, Ximena Cantón."
+author: "Marissa Luna, Mariana León, Nubia Garcidueñas, Ximena Cantón."
 format:
    html:
      toc: true
@@ -250,6 +250,139 @@ df_finalisimo.to_csv("data/datos_contaminacion.csv", index=False)
 ```
 
 
+## 2. Ajuste de red Gaussiana y Scores. 
+*✏️ Ajusten una GBN para cada una de las DAG propuestas. ✏️ Reporten el BIC y el AIC para cada GBN*
+
+```{r}
+library(tidyverse)
+library(bnlearn)
+```
+
+```{r}
+data = read_csv("/Users/marissaluna/Documents/SP_CONTAMINACION/data/datos_contaminacion.csv")
+head(data)
+```
+
+```{r}
+data = data |>
+        select(c(-U,-S)) # Dropeamos S y U
+```
+
+Creamos la DAG 1:
+
+```{r}
+dag1= model2network("[Am][M][D][O][E][PCR|Am:M:D:O:E:VD][VD|E][AL|E:PCR][T|E:PCR][I|E:PCR:VD:AL][C|E:Am:D:O][H|E:M:PCR:T]")
+```
+
+Visualizamos la DAG 1:
+
+```{r}
+graphviz.plot(dag1, shape = "ellipse")
+```
+
+Ahora, realizamos el ajuste para la DAG 1:
+
+```{r}
+dag1_fit = bn.fit(dag1, data=data)
+```
+
+Sacamos el BIC de la DAG 1:
+
+```{r}
+score(dag1, data= data, type = "bic-g")
+```
+
+Sacamos el AIC de la DAG 1:
+
+```{r}
+score(dag1, data= data, type = "aic-g")
+```
+
+Creamos la DAG 2:
+
+```{r}
+dag2 = model2network("[M][E][O|M][D|M][Am|M][AL|E][PCR|AL:E][T|PCR][VD|PCR:E][C|E][H|E][I|E:O]")# Le metemos la esctrutura de la DAG
+```
+
+Visualizamos la DAG 2:
+
+```{r}
+graphviz.plot(dag2, shape = "ellipse")
+```
+
+Ahora, realizamos el ajuste para la DAG 2:
+
+```{r}
+dag2_fit = bn.fit(dag2, data=data)
+```
+
+Sacamos el BIC de la DAG 2:
+
+```{r}
+score(dag2, data= data, type = "bic-g")
+```
+
+Sacamos el AIC de la DAG 2:
+
+```{r}
+score(dag2, data= data, type = "aic-g")
+```
+
+Creamos la DAG 3:
+
+```{r}
+dag3 = empty.graph(nodes = c( "Am", "I", "C", "M", "H", "E", "O", "D", "VD", "T", "PCR", "AL"))
+arc_set = matrix(c(
+                   "Am", "C",
+                   "Am", "PCR", 
+                   "Am", "VD", 
+                   "M", "C",
+                   "M", "PCR", 
+                   "M", "VD", 
+                   "D", "C",
+                   "D", "PCR", 
+                   "D", "VD",
+                   "O", "C",
+                   "O", "PCR", 
+                   "O", "VD",
+                   "VD", "I",
+                   "I", "H", 
+                   "E", "C", 
+                   "E", "H", 
+                   "PCR", "AL", 
+                   "PCR", "T", 
+                   "T", "H"
+                   ), byrow = TRUE, ncol = 2,
+                 dimnames = list(NULL, c("from", "to")))
+```
+
+```{r}
+arcs(dag3) = arc_set
+```
+
+Visualizamos la DAG 3:
+
+```{r}
+graphviz.plot(dag3, shape = "ellipse")
+```
+
+Ahora, realizamos el ajuste para la DAG 3:
+
+```{r}
+dag3_fit = bn.fit(dag3, data=data)
+```
+
+Sacamos el BIC de la DAG 3:
+
+```{r}
+score(dag3, data= data, type = "bic-g")
+```
+
+Sacamos el AIC de la DAG 3:
+
+```{r}
+score(dag3, data= data, type = "aic-g")
+```
 
 
 
