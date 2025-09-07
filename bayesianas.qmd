@@ -1,0 +1,105 @@
+---
+title: "bayesianas"
+format: html
+editor: visual
+---
+
+## Quarto
+
+```{r}
+library("tidyverse")
+library("bnlearn")
+```
+
+```{r}
+data = read_csv("data/datos_contaminacion.csv")
+head(data)
+```
+```{r}
+data = data |>
+        select(c(-U, -S))
+```
+
+```{r}
+#cambiamos a double 
+data = data |>
+        mutate(across(c(C,VD,T,PCR), ~ as.numeric(str_replace(., ",", "\\.")))) #el . indica que todo lo de contains valor, se le haga el mismo reemplazo. cambiamos , por . (//. en R asi es como se ponen el carcater punto)
+
+```
+
+```{r}
+head(data)
+```
+
+
+```{r}
+dag3 = empty.graph(nodes = c("Am", "I", "C", "M", "H", "E", "D", "O", "VD", "T", "PCR", "AL"))
+```
+
+```{r}
+arc_set = matrix(c(
+                   "Am", "C",
+                   "Am", "PCR", 
+                   "Am", "VD", 
+                   "M", "C",
+                   "M", "PCR", 
+                   "M", "VD", 
+                   "D", "C",
+                   "D", "PCR", 
+                   "D", "VD",
+                   "O", "C",
+                   "O", "PCR", 
+                   "O", "VD",
+                   "VD", "I",
+                   "I", "H", 
+                   "E", "C", 
+                   "E", "H", 
+                   "PCR", "AL", 
+                   "PCR", "T", 
+                   "T", "H"
+                   ), byrow = TRUE, ncol = 2,
+                 dimnames = list(NULL, c("from", "to")))
+```
+
+```{r}
+arcs(dag3) = arc_set
+```
+
+```{r}
+dag3
+```
+
+```{r}
+install.packages("BiocManager")
+BiocManager::install("Rgraphviz")
+```
+
+```{r}
+graphviz.plot(dag3, shape = "ellipse")
+```
+```{r}
+dag3_fit= bn.fit(dag3, data= data)
+```
+
+```{r}
+score(dag3, data=data, type= "bic-g")
+```
+
+```{r}
+score(dag3, data=data, type= "aic-g")
+```
+
+## 3.⁠ ⁠Impacto de la urbanidad en contaminantes específicos
+¿Qué efecto tiene vivir en un área urbana frente a una rural sobre la exposición a óxidos de nitrógeno (NOx) y dióxido de azufre (SO₂), considerando que el monóxido de carbono (M) también influye en los niveles de SO₂?
+
+
+
+
+
+
+
+
+
+
+
+
