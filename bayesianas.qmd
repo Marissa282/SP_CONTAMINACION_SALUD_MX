@@ -1,100 +1,196 @@
 ---
-title: "bayesianas"
-format: html
-editor: visual
+title: "Situación Problema: Contaminación ambiental y salud en México"
+author: "Marissa Luna, Mariana León, Nube Garcidueñas, Ximena Cantón."
+format:
+   html:
+     toc: true
+     html-math-method: katex
+     embed-resources: true 
+     self-contained-math: true
+     df-print: kable
+editor: source
 ---
 
-## Quarto
+Los contaminantes del aire, como el material particulado (PM₂.₅ y PM₁₀), el dióxido de azufre (SO₂), el monóxido de carbono (CO), los óxidos de nitrógeno (NOx), los compuestos orgánicos volátiles (COV) y el amoníaco (NH₃), se relacionan entre sí por su origen (industrial, vehicular) y por reacciones químicas que forman otros compuestos. Estos contaminantes impactan a los biomarcadores al provocarles cambios en su estructura o función, lo que se traduce en un indicador de exposición o daño orgánico. Los biomarcadores afectados suelen ser macromoléculas como proteínas, lípidos o carbohidratos, entre otros. 
+"La exposición a la contaminación del aire está asociada con el estrés oxidativo y la inflamación de las células humanas, lo que puede sentar las bases para enfermedades crónicas y el cáncer" (NIH, s.f.).
+
+Estos procesos impactan distintos biomarcadores biológicos, entre los que destacan:
+•⁠  ⁠Marcadores hematológicos: reducción de hemoglobina
+•⁠  ⁠Marcadores de inflamación: proteína C reactiva (PCR).
+•⁠  ⁠Marcadores cardiovasculares y metabólicos: presión arterial, glucosa, colesterol y triglicéridos.
+•⁠  ⁠Marcadores de función pulmonar.
+En conjunto, la exposición a contaminantes puede alterar parámetros sanguíneos y respiratorios, aumentando el riesgo de enfermedades crónicas cardiovasculares, respiratorias y metabólicas.
+
+# 1. Conjunto de Datos
+*✏️ Una vez que cuenten con una selección de variables que les satisfaga, construyan el conjunto de datos que utilizarán. Para ello será necesario unir diferentes tablas para obtener la información necesaria.*
 
 ```{r}
-library("tidyverse")
-library("bnlearn")
+#utilizamos ambiente de anaconda para cagar python
+library(reticulate)
+use_condaenv("base", required = TRUE)
 ```
 
-```{r}
-data = read_csv("data/datos_contaminacion.csv")
-head(data)
-```
-```{r}
-data = data |>
-        select(c(-U, -S))
+```{python}
+import pandas as pd 
 ```
 
-```{r}
-#cambiamos a double 
-data = data |>
-        mutate(across(c(C,VD,T,PCR), ~ as.numeric(str_replace(., ",", "\\.")))) #el . indica que todo lo de contains valor, se le haga el mismo reemplazo. cambiamos , por . (//. en R asi es como se ponen el carcater punto)
+```{python}
+muestras= pd.read_csv("data/ensanut2022_muestras.csv", sep=";", decimal=",", encoding="utf-8-sig")
+socdem= pd.read_csv("data/ensanut2022_socdem.csv", sep=";", decimal=",", encoding="utf-8-sig")
+aire= pd.read_csv("data/calidad_aire_2025.csv")
+```
+```{python}
+#Creamos diccionario para que todo los estados estén escritos igual
+map_estados = {
+    # Aguascalientes
+    "01 AGUASCALIENTES": "Aguascalientes",
+    "Aguascalientes": "Aguascalientes",
 
+    # Baja California
+    "02 BAJA CALIFORNIA": "Baja california",
+    "Baja California": "Baja california",
+
+    # Baja California Sur
+    "03 BAJA CALIFORNIA SUR": "Baja california sur",
+    "Baja California Sur": "Baja california sur",
+
+    # Campeche
+    "04 CAMPECHE": "Campeche",
+    "Campeche": "Campeche",
+
+    # Coahuila
+    "05 COAHUILA DE ZARAGOZA": "Coahuila",
+    "Coahuila": "Coahuila",
+
+    # Colima
+    "06 COLIMA": "Colima",
+    "Colima": "Colima",
+
+    # Chiapas
+    "07 CHIAPAS": "Chiapas",
+    "Chiapas": "Chiapas",
+
+    # Chihuahua
+    "08 CHIHUAHUA": "Chihuahua",
+    "Chihuahua": "Chihuahua",
+
+    # Ciudad de México
+    "09 CIUDAD DE MÉXICO": "Ciudad de mexico",
+    "Ciudad de México": "Ciudad de mexico",
+
+    # Durango
+    "10 DURANGO": "Durango",
+    "Durango": "Durango",
+
+    # Guanajuato
+    "11 GUANAJUATO": "Guanajuato",
+    "Guanajuato": "Guanajuato",
+
+    # Guerrero
+    "12 GUERRERO": "Guerrero",
+    "Guerrero": "Guerrero",
+
+    # Hidalgo
+    "13 HIDALGO": "Hidalgo",
+    "Hidalgo": "Hidalgo",
+
+    # Jalisco
+    "14 JALISCO": "Jalisco",
+    "Jalisco": "Jalisco",
+
+    # Estado de México
+    "15 MÉXICO": "Estado de mexico",
+    "Estado de México": "Estado de mexico",
+
+    # Michoacán
+    "16 MICHOACÁN DE OCAMPO": "Michoacan",
+    "Michoacán": "Michoacan",
+
+    # Morelos
+    "17 MORELOS": "Morelos",
+    "Morelos": "Morelos",
+
+    # Nayarit
+    "18 NAYARIT": "Nayarit",
+    "Nayarit": "Nayarit",
+
+    # Nuevo León
+    "19 NUEVO LEÓN": "Nuevo leon",
+    "Nuevo León": "Nuevo leon",
+
+    # Oaxaca
+    "20 OAXACA": "Oaxaca",
+    "Oaxaca": "Oaxaca",
+
+    # Puebla
+    "21 PUEBLA": "Puebla",
+    "Puebla": "Puebla",
+
+    # Querétaro
+    "22 QUERÉTARO": "Queretaro",
+    "Querétaro": "Queretaro",
+
+    # Quintana Roo
+    "23 QUINTANA ROO": "Quintana roo",
+    "Quintana Roo": "Quintana roo",
+
+    # San Luis Potosí
+    "24 SAN LUIS POTOSÍ": "San luis potosi",
+    "San Luis Potosí": "San luis potosi",
+
+    # Sinaloa
+    "25 SINALOA": "Sinaloa",
+    "Sinaloa": "Sinaloa",
+
+    # Sonora
+    "26 SONORA": "Sonora",
+    "Sonora": "Sonora",
+
+    # Tabasco
+    "27 TABASCO": "Tabasco",
+    "Tabasco": "Tabasco",
+
+    # Tamaulipas
+    "28 TAMAULIPAS": "Tamaulipas",
+    "Tamaulipas": "Tamaulipas",
+
+    # Tlaxcala
+    "29 TLAXCALA": "Tlaxcala",
+    "Tlaxcala": "Tlaxcala",
+
+    # Veracruz
+    "30 VERACRUZ DE IGNACIO DE LA LLAVE": "Veracruz",
+    "Veracruz": "Veracruz",
+
+    # Yucatán
+    "31 YUCATÁN": "Yucatan",
+    "Yucatán": "Yucatan",
+
+    # Zacatecas
+    "32 ZACATECAS": "Zacatecas",
+    "Zacatecas": "Zacatecas"
+}
 ```
 
-```{r}
-head(data)
+
+```{python}
+#mapeamos el diccionario a los nombre de estados a cambiar
+import re
+socdem["Entidad"] = socdem["desc_ent1"].map(map_estados)
+aire["Entidad"]= aire["Entidad"].map(map_estados)
+muestras["Entidad"] = muestras["desc_ent"].map(map_estados)
 ```
 
-
-```{r}
-dag3 = empty.graph(nodes = c("Am", "I", "C", "M", "H", "E", "D", "O", "VD", "T", "PCR", "AL"))
+```{python}
+#agrupamos por Entidad para facilitar el merge 
+aire= aire.groupby("Entidad")[["SO_2", "CO","NOx", "COV", "PM_010", "PM_2_5", "NH_3" ]].sum().reset_index()
 ```
 
-```{r}
-arc_set = matrix(c(
-                   "Am", "C",
-                   "Am", "PCR", 
-                   "Am", "VD", 
-                   "M", "C",
-                   "M", "PCR", 
-                   "M", "VD", 
-                   "D", "C",
-                   "D", "PCR", 
-                   "D", "VD",
-                   "O", "C",
-                   "O", "PCR", 
-                   "O", "VD",
-                   "VD", "I",
-                   "I", "H", 
-                   "E", "C", 
-                   "E", "H", 
-                   "PCR", "AL", 
-                   "PCR", "T", 
-                   "T", "H"
-                   ), byrow = TRUE, ncol = 2,
-                 dimnames = list(NULL, c("from", "to")))
+```{python}
+#merge entre aire y socdem
+df_joined = pd.merge(socdem, aire, on = "Entidad", how = "inner")
+df_joined
 ```
-
-```{r}
-arcs(dag3) = arc_set
-```
-
-```{r}
-dag3
-```
-
-```{r}
-install.packages("BiocManager")
-BiocManager::install("Rgraphviz")
-```
-
-```{r}
-graphviz.plot(dag3, shape = "ellipse")
-```
-```{r}
-dag3_fit= bn.fit(dag3, data= data)
-```
-
-```{r}
-score(dag3, data=data, type= "bic-g")
-```
-
-```{r}
-score(dag3, data=data, type= "aic-g")
-```
-
-## 3.⁠ ⁠Impacto de la urbanidad en contaminantes específicos
-¿Qué efecto tiene vivir en un área urbana frente a una rural sobre la exposición a óxidos de nitrógeno (NOx) y dióxido de azufre (SO₂), considerando que el monóxido de carbono (M) también influye en los niveles de SO₂?
-
-
-
-
 
 
 
