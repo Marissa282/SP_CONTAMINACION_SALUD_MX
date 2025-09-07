@@ -192,6 +192,63 @@ df_joined = pd.merge(socdem, aire, on = "Entidad", how = "inner")
 df_joined
 ```
 
+```{python}
+#merge entre df_final y muestras
+df_final = pd.merge(df_joined, muestras, on = "FOLIO_INT", how = "left")
+df_final
+```
+
+```{python}
+#elegimos las columnas finales
+columnas= ["NH_3", "valor_INSULINA", "valor_CREAT", "CO", "valor_HB1AC"
+           , "h0303_x", "h0302_x", "estrato_x", "SO_2", "NOx", "valor_VIT_D", "valor_STFR_FEB23", "valor_PCR", "valor_ALBU"]
+df_finalisimo= df_final[columnas]
+```
+
+```{python}
+#vemos si hay Nan
+df_finalisimo.isna().sum()
+#vemos si hay espacios vacíos 
+
+#revismaos que vengan desde los df originales
+muestras["valor_HB1AC"].str.contains(r'^\s*$', na=False).sum() #hay un monton de espacios 
+```
+
+```{python}
+#dropeamos vacíos y Nan
+import numpy as np
+df_finalisimo = df_finalisimo.replace(r'^\s*$', np.nan, regex=True)
+df_finalisimo = df_finalisimo.dropna().reset_index(drop=True)
+```
+
+```{python}
+#renombramos las columnas
+df_finalisimo
+df_finalisimo.columns = ["Am", "I", "C", "M", "H", "E", "S", "U", "D", "O", "VD", "T", "PCR", "AL"]
+```
+
+```{python}
+#rempalzamos comas. por puntos y los hacemos float
+df_finalisimo = df_finalisimo.apply(lambda col:
+    col.astype(str).str.replace(",", ".", regex=False).astype(float)
+)
+```
+
+```{python}
+#cambiamos a int U y S
+df_finalisimo['U'] = df_finalisimo['U'].astype(int)
+df_finalisimo['S'] =df_finalisimo['S'].astype(int)
+```
+
+```{python}
+df_finalisimo.head()
+```
+
+```{python}
+df_finalisimo.info()
+df_finalisimo.to_csv("data/datos_contaminacion.csv", index=False)
+```
+
 
 
 
