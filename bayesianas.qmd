@@ -383,7 +383,17 @@ Sacamos el AIC de la DAG 3:
 ```{r}
 score(dag3, data= data, type = "aic-g")
 ```
+## 3. Inclusión de variables categóricas
+*✏️ Investiguen y discutan cómo podrían incluir las variables categóricas a la red, por ejemplo, una variable de interés puede ser el sexo. Se pueden incluir como nuevos nodos padre en la mejor DAG, de modo que no afecte las relaciones en la DAG ya establecida como la mejor.*
 
+Si ya se tiene una GBN (red bayesiana gaussiana) y se busca añadir un par de variables categóricas, lo ideal para incluirlas, es seguir las siguientes "reglas":
+
+- ⁠Nodos discretos (variables categóricas) no pueden tener padres continuos.
+- ⁠Nodos continuos (biomarcadores, contaminantes) sí pueden tener padres discretos y continuo. 
+
+Por tanto, se orientan los arcos de lo discreto → a lo continuo. 
+
+- ⁠No cambiar la DAG existente; sólo agregar pocos arcos salientes desde cada variable categórica a los biomarcadores/variables continuas.
 
 
 
