@@ -395,7 +395,18 @@ Por tanto, se orientan los arcos de lo discreto → a lo continuo.
 
 - ⁠No cambiar la DAG existente; sólo agregar pocos arcos salientes desde cada variable categórica a los biomarcadores/variables continuas.
 
+## 4. Usando sexo (S) y urbanidad (U)
+*✏️ Con la mejor estructura que han encontrado hasta el momento, intenten incluir el sexo de las personas.*
 
+Ahora, siendo la dag2 la mejor dag, incluimos las variables categóricas de "S = sexo" y "U = urbanidad/estrato":
+
+```{r}
+best_dag = model2network("[U][M][E][S][O|U][D|U:M][Am|M][AL|U:E][PCR|AL:E:S][T|PCR][VD|S:PCR:E][C|E:S][H|S:E][I|S:E]")
+```
+
+```{r}
+graphviz.plot(best_dag, shape = "ellipse")
+```
 
 
 
