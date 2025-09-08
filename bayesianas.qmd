@@ -459,3 +459,9 @@ mod_gam_I = gam(PCR~ s(E) , data = data, method = "REML")
 mod_M = lm(M ~ 1, data = data) 
 mod_E = lm(E ~ 1, data = data)
 ```
+
+```{r}
+-1/2* (BIC(mod_gam_O) + BIC (mod_gam_D) + BIC (mod_gam_Am) + BIC (mod_gam_AL) + BIC (mod_gam_PCR) + BIC (mod_gam_T) +BIC(mod_gam_VD)+BIC(mod_gam_C)+ BIC (mod_gam_H) +BIC(mod_gam_I)+ BIC (mod_M)+BIC(mod_E))
+```
+
+En efecto, al estimar los modelos se observó que el BIC mejoró de manera clara al pasar de los modelos lineales a los no paramétricos. Esto confirma la expectativa inicial: los suavizadores incluidos en los GAMs lograron capturar mejor la variabilidad de los datos sin aumentar en exceso la complejidad, y por ello los criterios de información resultaron más favorables.
