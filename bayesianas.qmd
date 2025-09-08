@@ -465,3 +465,12 @@ mod_E = lm(E ~ 1, data = data)
 ```
 
 En efecto, al estimar los modelos se observó que el BIC mejoró de manera clara al pasar de los modelos lineales a los no paramétricos. Esto confirma la expectativa inicial: los suavizadores incluidos en los GAMs lograron capturar mejor la variabilidad de los datos sin aumentar en exceso la complejidad, y por ello los criterios de información resultaron más favorables.
+
+
+## Referencias 
+
+- National Institute of Environmental Health Sciences. (s. f.). La contaminación del aire y su salud. Recuperado el 6 de septiembre de 2025, de https://www.niehs.nih.gov/health/topics/enfermedades/contaminacion
+
+- Buonaurio, F., Bianco, A., D’Ambrosio, F., Mazzoli, A., Trotta, A., & Sisto, R. (2022). Biomonitoring of exposure to urban pollutants and oxidative stress during the COVID-19 lockdown in Rome residents. Toxics, 10(5), 267. https://doi.org/10.3390/toxics10050267
+
+- Madsen, A. L., Olesen, K. G., Jensen, F., Henriksen, P. A., Larsen, T. M., & Møller, J. M. (2022). Online updating of conditional linear Gaussian Bayesian networks. En A. Salmerón & R. Rumi (Eds.), Proceedings of the 11th International Conference on Probabilistic Graphical Models (Vol. 186, pp. 97–108). PMLR Press. https://proceedings.mlr.press/v186/madsen22a.html
